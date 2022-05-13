@@ -5,11 +5,11 @@ CMS_BUILD_IP=173.255.208.122
 PACKAGE_PATTERN=downstream-cms-${PROJECT_SLUG}*.deb
 PACKAGE_DIR=./dist
 
-LAST_PACKAGE=$(cat .dev.buildtest.last)
+LAST_PACKAGE=$(cat "/home/downstream/ds_dev_deploy/.dev.${PROJECT_SLUG}.last")
 
 log_msg () {
 
-  echo "$(date +'%Y-%m-%d %T')\t$1"
+  printf "$(date +'%Y-%m-%d %T')\t${1}\n"
 }
 
 main () {
@@ -26,7 +26,9 @@ main () {
     scp downstream@${CMS_BUILD_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} . || exit 1
     log_msg "Package sucessfully downloaded, installing now..."
     apt install -y ./${NEWEST_PACKAGE} || exit 1
+    echo "${NEWEST_PACKAGE}" > .dev.buildtest.last
     log_msg "Installation completed successfully"
+
   fi
 
   log_msg "Run complete"
