@@ -1,19 +1,36 @@
 #!/bin/bash
 
+PROJECT_SLUG=buildtest
 CMS_BUILD_IP=173.255.208.122
-PACKAGE_PATTERN=downstream-cms-buildtest*.deb
+PACKAGE_PATTERN=downstream-cms-${PROJECT_SLUG}*.deb
 PACKAGE_DIR=./dist
 
 LAST_PACKAGE=$(cat .dev.buildtest.last)
 
-echo "Last package was ${LAST_PACKAGE}"
+log_msg () {
 
-NEWEST_PACKAGE=$(ssh "downstream@${CMS_BUILD_IP}" "cd ${PACKAGE_DIR}; ls -Art ${PACKAGE_PATTERN} | tail -1")
+  echo "$(date +'%Y-%m-%d %T')\t$1"
+}
 
-echo "Newest package is ${NEWEST_PACKAGE}"
+main () {
 
-if [[ "${NEWEST_PACKAGE}" != "${LAST_PACKAGE}" ]]; then
-  echo "Will upload and install"
-  scp downstream@${CMS_BUID_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} . || exit 1
-  apt install -y ./${NEWEST_PACKAGE} || exit 1
-fi
+  log_msg "Run started for project: ${PROJECT_SLUG}"
+
+  NEWEST_PACKAGE=$(ssh "downstream@${CMS_BUILD_IP}" "cd ${PACKAGE_DIR}; ls -Art ${PACKAGE_PATTERN} | tail -1")
+
+  log_msg "Last package was ${LAST_PACKAGE}"
+  log_msg "Latest available package is ${NEWEST_PACKAGE}"
+
+  if [[ "${NEWEST_PACKAGE}" != "${LAST_PACKAGE}" ]]; then
+    log_msg "Latest package ${NEWEST_PACKAGE} differs from last package ${LAST_PACKAGE}, downloading now..."
+    scp downstream@${CMS_BUIID_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} . || exit 1
+    log_msg "Package sucessfully downloaded, installing now..."
+    apt install -y ./${NEWEST_PACKAGE} || exit 1
+    log_msg "Installation completed successfully"
+  fi
+
+  log_msg "Run complete"
+
+}
+
+main
