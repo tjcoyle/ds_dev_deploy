@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "I refuse to run this now..."
+
+exit 1
+
 CMS_BUILD_IP=173.255.208.122
 PACKAGE_PATTERN=downstream-cms-linkedin*.deb
 PACKAGE_DIR=./dist
