@@ -22,12 +22,20 @@ main () {
   log_msg "Latest available package is ${NEWEST_PACKAGE}"
 
   if [[ "${NEWEST_PACKAGE}" != "${LAST_PACKAGE}" ]]; then
+
     log_msg "Latest package ${NEWEST_PACKAGE} differs from last package ${LAST_PACKAGE}, downloading now..."
+
     scp downstream@${CMS_BUILD_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} . || exit 1
+
     log_msg "Package sucessfully downloaded, installing now..."
+
     apt install -y ./${NEWEST_PACKAGE} || exit 1
+
     echo "${NEWEST_PACKAGE}" > .dev.buildtest.last
-    log_msg "Installation completed successfully"
+
+    sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${PROJECT_SLUG}.downstreamlabs.com
+
+    log_msg "Deployment completed successfully"
 
   fi
 
