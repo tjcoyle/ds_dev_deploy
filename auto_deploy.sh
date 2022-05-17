@@ -14,7 +14,6 @@ log_msg () {
   printf "$(date +'%Y-%m-%d %T')\t${1}\n"
 }
 
-#set -x
 main () {
 
   log_msg "Run started for project: ${PROJECT_SLUG}"
