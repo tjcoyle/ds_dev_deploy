@@ -1,5 +1,6 @@
 #!/bin/bash
 
+ENV_TYPE=dev
 PROJECT_SLUG=buildtest
 CMS_BUILD_IP=173.255.208.122
 PACKAGE_PATTERN=downstream-cms-${PROJECT_SLUG}*.deb
@@ -31,9 +32,9 @@ main () {
 
     apt install -y ./${NEWEST_PACKAGE} || exit 1
 
-    echo "${NEWEST_PACKAGE}" > .dev.buildtest.last
+    echo "${NEWEST_PACKAGE}" > "/home/downstream/ds_dev_deploy/.dev.${PROJECT_SLUG}.last"
 
-    sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${PROJECT_SLUG}.downstreamlabs.com
+    sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${ENV_TYPE}.${PROJECT_SLUG}.downstreamlabs.com
 
     log_msg "Deployment completed successfully"
 
