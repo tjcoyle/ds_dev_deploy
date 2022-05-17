@@ -5,6 +5,8 @@ PROJECT_SLUG=buildtest
 CMS_BUILD_IP=173.255.208.122
 PACKAGE_PATTERN=downstream-cms-${PROJECT_SLUG}*.deb
 PACKAGE_DIR=./dist
+ALERT_FROM_ADDRESS=noreply@downstreamlabs.com
+ALERT_TO_ADDRESS=thomas.coyle@downstream.com
 
 LAST_PACKAGE=$(cat "/home/downstream/ds_dev_deploy/.dev.${PROJECT_SLUG}.last")
 
@@ -35,6 +37,11 @@ main () {
     echo "${NEWEST_PACKAGE}" > "/home/downstream/ds_dev_deploy/.dev.${PROJECT_SLUG}.last"
 
     sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${ENV_TYPE}.${PROJECT_SLUG}.downstreamlabs.com
+
+    echo "Package $NEWEST_PACKAGE} was just successfully deployed." | mailx \
+	-r ${ALERT_FROM_ADDRESS} \ 
+        -s "Deployed: ${NEWEST_PACKAGE}" \
+        ${ALERT_TO_ADDRESS}
 
     log_msg "Deployment completed successfully"
 
