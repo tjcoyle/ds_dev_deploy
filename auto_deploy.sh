@@ -5,8 +5,8 @@ PROJECT_SLUG=$1
 CMS_BUILD_IP=173.255.208.122
 PACKAGE_PATTERN=downstream-cms-${PROJECT_SLUG}*.deb
 PACKAGE_DIR=./dist
-ALERT_FROM_ADDRESS='noreply@downstreamlabs.com'
-ALERT_TO_ADDRESS='thomas.coyle@downstream.com'
+ALERT_FROM_ADDRESS=noreply@downstreamlabs.com
+ALERT_TO_ADDRESS=thomas.coyle@downstream.com
 SCRIPT_ROOT=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 log_msg () {
@@ -39,19 +39,27 @@ main () {
 
     log_msg "Package successfully downloaded, installing now..."
 
-    #apt install -y ./${NEWEST_PACKAGE} || exit 1
+    apt install -y ./${NEWEST_PACKAGE} || exit 1
 
     echo "${NEWEST_PACKAGE}" > "${SCRIPT_ROOT}/.dev.${PROJECT_SLUG}.last"
 
-    #sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${ENV_TYPE}.${PROJECT_SLUG}.downstreamlabs.com
+    # certbot has been lingering, handling that here for now
+    if pgrep -x "certbot" >> /dev/null
+    then
+      log_msg "Certbot is running, going to kill it now."
+      killall -9 certbot
+    fi
 
-    echo "Package $NEWEST_PACKAGE} was just successfully deployed." | mailx \
-	-r ${ALERT_FROM_ADDRESS} \ 
+    sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${ENV_TYPE}.${PROJECT_SLUG}.downstreamlabs.com
+
+    echo "Package ${NEWEST_PACKAGE} was just successfully deployed." | mailx \
+	-r ${ALERT_FROM_ADDRESS} \
         -s "Deployed: ${NEWEST_PACKAGE}" \
         ${ALERT_TO_ADDRESS}
 
     log_msg "Deployment completed successfully"
-
+  else
+    log_msg "Skipping, no need to install."
   fi
 
   log_msg "Run complete"
