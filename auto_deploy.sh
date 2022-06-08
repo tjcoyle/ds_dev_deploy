@@ -35,7 +35,7 @@ main () {
 
     log_msg "Latest package ${NEWEST_PACKAGE} differs from last package ${LAST_PACKAGE}, downloading now..."
 
-    scp downstream@${CMS_BUILD_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} # . || log_message "Fatal error downloading package ${NEWEST_PACKAGE}, exiting now." && exit 1
+    scp downstream@${CMS_BUILD_IP}:${PACKAGE_DIR}/${NEWEST_PACKAGE} . #|| log_message "Fatal error downloading package ${NEWEST_PACKAGE}, exiting now." && exit 1
 
     log_msg "Package successfully downloaded, installing now..."
 
@@ -52,10 +52,7 @@ main () {
 
     sudo certbot --agree-tos --non-interactive --nginx --reinstall --redirect -d ${ENV_TYPE}.${PROJECT_SLUG}.downstreamlabs.com
 
-    echo "Package ${NEWEST_PACKAGE} was just successfully deployed." | mailx \
-	-r ${ALERT_FROM_ADDRESS} \
-        -s "Deployed: ${NEWEST_PACKAGE}" \
-        ${ALERT_TO_ADDRESS}
+    echo "Package ${NEWEST_PACKAGE} was just successfully deployed." | mailx -r ${ALERT_FROM_ADDRESS} -s "Deployed: ${NEWEST_PACKAGE}" ${ALERT_TO_ADDRESS}
 
     log_msg "Deployment completed successfully"
   else
